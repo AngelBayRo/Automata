@@ -19,7 +19,8 @@ public class Automata extends JPanel{
 	Map<Integer, Color> asignaColor = new HashMap<Integer,Color>(); //states
 	Random rand = new Random(System.nanoTime());
 	
-	public Automata(){
+	public Automata(int t){
+		tam = t;
 		for (int i = 0; i < tam; i++) 
 			for (int j = 0; j < tam; j++)
 				mat[i][j]= 0;
@@ -254,13 +255,13 @@ public class Automata extends JPanel{
 			for (int j = 0; j < tam; j++)
 				if(mat[i][j]!=0)
 					FirstPh(i,j);
-				//mat[i][j]= rand.nextInt(4);
 	}
 	
 	public static void main(String [] args){
 		JFrame frame = new JFrame("Automat");
 		frame.setSize(550,550);
-		Automata auto = new Automata();
+		String cells = JOptionPane.showInputDialog("Numero de celulas por lado:");
+		Automata auto = new Automata(Integer.parseInt(cells));
 	    frame.getContentPane().add(auto);
 
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -269,13 +270,6 @@ public class Automata extends JPanel{
 	    String input = JOptionPane.showInputDialog("Numero de estados:");
 	    
 	    for (int i = 0; i < Integer.parseInt(input); i++) {
-	    	/*for (int j = 0; j < mat.length; j++) {
-				for (int j2 = 0; j2 < mat.length; j2++) {
-					System.out.print(mat[j][j2]+" ");
-				}
-				System.out.println();
-			}
-	    	System.out.println();*/
 	    	auto.NuevoEstado();
 	    	frame.getContentPane().validate();
 	    	frame.getContentPane().update(frame.getContentPane().getGraphics());
