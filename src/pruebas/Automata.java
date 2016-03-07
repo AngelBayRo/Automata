@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -15,6 +17,7 @@ public class Automata extends JPanel{
 	public static int tam = 100; //display
 	public static float[] prob = new float[4]; //proliferation
 	public static int[][] mat= new int[tam][tam]; //cells
+	public static Vector alives = new Vector();
 	public static float Pm = (float) 0.2 ,Pp = (float) 0.25,Pq = 1-Pm-Pp;
 	Map<Integer, Color> asignaColor = new HashMap<Integer,Color>(); //states
 	Random rand = new Random(System.nanoTime());
@@ -27,8 +30,6 @@ public class Automata extends JPanel{
 
 		asignaColor.put(0, Color.blue);
 		asignaColor.put(1, Color.cyan);
-		asignaColor.put(2, Color.yellow);
-		asignaColor.put(3, Color.red);
 		
 		mat[(int)tam/2][(int)tam/2] = 1;
 	}//constructor
@@ -185,7 +186,7 @@ public class Automata extends JPanel{
 		
 	}//migration method
 	
-	public void SecondPh(int CX, int CY,float rr){
+	public void SecondPh(int CX, int CY,float rr)throws Exception{
 		float rrp;
 		int PH=0, NP=1;
 		boolean prol=false;
@@ -209,14 +210,14 @@ public class Automata extends JPanel{
 		}
 	}//proliferation method
 	
-	public void FirstPh(int CX, int CY){
+	public void FirstPh(int CX, int CY)throws Exception{
 		float Ps = 1,Pd = 1-Ps, rr;
 		rr=rand.nextFloat();
 		if(rr<Ps)
 			SecondPh(CX, CY, rr);
 	}//metodo de inicio que evalua si la celula muere o vive
 	
-	public boolean ProlCel (int cX, int cY , float rr){ //hacia donde se divide
+	public boolean ProlCel (int cX, int cY , float rr) throws Exception{ //hacia donde se divide
 		
 		if(!(prob[0]==0 && prob[1]==0 && prob[2]==0 && prob[3]==0)){
 			if(rr>=0 && rr<=prob[0]){
@@ -235,31 +236,29 @@ public class Automata extends JPanel{
 		}//si estan todas ocupadas no puede multiplicarse
 		else
 			return false;
-	}
+	}//selecciona hacia donde se mueve
 	
-	public void Comportamiento(){
-		//valores de ejemplo
-		
-		for (int i = 1; i < mat.length; i++) {
-			for (int j = 1; j < mat.length; j++) {
-				if(mat[i][j]!=0){
-					FirstPh(i,j);
-					}
-			}//for interno
-		}//for que recorre la matriz
-		
-	}//método de evolución de las celulas
-	
-	public void NuevoEstado(){
+	public void NuevoEstado()throws Exception{
 		for (int i = 0; i < tam; i++) 
 			for (int j = 0; j < tam; j++)
 				if(mat[i][j]!=0)
 					FirstPh(i,j);
-	}
+	}//genera las distintas generaciones por cada célula
 	
-	public static void main(String [] args){
+	public static void living(){
+		int cont = 0;
+		for (int i = 0; i < mat.length; i++) {
+			for (int j = 0; j < mat.length; j++) {
+				if(mat[i][j]==1)
+					cont++;
+			}
+		}
+		alives.addElement(new Integer(cont));
+	}//método que cuenta el número de células vivas
+	
+	public static void main(String [] args)throws Exception{
 		JFrame frame = new JFrame("Automat");
-		frame.setSize(550,550);
+		frame.setSize(520,570);
 		String cells = JOptionPane.showInputDialog("Numero de celulas por lado:");
 		Automata auto = new Automata(Integer.parseInt(cells));
 	    frame.getContentPane().add(auto);
@@ -267,12 +266,28 @@ public class Automata extends JPanel{
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
 	    frame.setVisible(true);
-	    String input = JOptionPane.showInputDialog("Numero de estados:");
+	    String input = JOptionPane.showInputDialog("Numero de generaciones (0 para continuo):");
 	    
-	    for (int i = 0; i < Integer.parseInt(input); i++) {
+	    int vueltas = Integer.parseInt(input);
+	    int cont = 0;
+	    boolean movie = true;
+	    
+	    while(movie){
+	    	living();
 	    	auto.NuevoEstado();
 	    	frame.getContentPane().validate();
 	    	frame.getContentPane().update(frame.getContentPane().getGraphics());
-	    }//for que repinta tantas veces como estados quieras
+	    	//Muestra número de células vivas
+	    	//System.out.println("Generación nº"+cont+": "+alives.elementAt(cont));
+	    	if(vueltas==cont && vueltas ==0){
+	    		movie = true;
+	    	}
+	    	else
+	    		if(vueltas==cont)
+	    			movie=false;
+	    		else
+	    			cont++;
+	    	
+	    }//bucle que repinta tantas veces como estados quieras
 	}
 }
